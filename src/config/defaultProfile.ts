@@ -322,7 +322,7 @@ export const defaultProfile: Profile = {
         { id: "thinking-of-you", label: "send a thinking-of-you message" },
         { id: "appreciation", label: "express appreciation" },
         { id: "call-someone", label: "call someone" },
-        { id: "call-sponsor", label: "call sponsor" },
+        { id: "call-anthony", label: "call Anthony" },
         { id: "pet-sunny-connection", label: "pet Sunny" },
       ],
       ask: ["Who do I wish was here?"],
@@ -378,8 +378,8 @@ export const defaultProfile: Profile = {
         { id: "take-walk", label: "take a walk" },
         { id: "delay-20", label: "delay decision 20 minutes" },
         { id: "honest-sentence", label: "write one honest sentence" },
-        { id: "text-sponsor", label: "text sponsor" },
-        { id: "text-coach", label: "text coach" },
+        { id: "text-anthony", label: "text Anthony" },
+        { id: "text-cheryl", label: "text Cheryl" },
         { id: "not-yet-list", label: "create a \"not yet\" list" },
       ],
       ask: ["Am I craving change? Or evidence that I'm changing?"],
@@ -452,8 +452,18 @@ export const defaultProfile: Profile = {
   ],
 
   supportContacts: [
-    { id: "anthony", name: "Anthony", methods: ["text", "call"] },
-    { id: "coach", name: "Coach", methods: ["text"] },
+    {
+      id: "anthony",
+      name: "Anthony",
+      phone: "781-706-4853",
+      methods: ["text", "call"],
+    },
+    {
+      id: "cheryl",
+      name: "Cheryl",
+      phone: "336-404-5959",
+      methods: ["text", "call"],
+    },
     { id: "trusted-friend", name: "Trusted Friend", methods: ["call"] },
   ],
 

@@ -175,3 +175,25 @@ export function setContactPhone(contactId: string, phone: string): void {
 export function useContactPhones(): ContactPhones {
   return useSyncExternalStore(subscribe, getContactPhones, () => EMPTY_PHONES);
 }
+
+// Reset ------------------------------------------------------------------------
+
+/**
+ * Erases all logged data (evidence, check-ins, decisions) from this device.
+ * Contact phone numbers are kept.
+ */
+export function clearAllData(): void {
+  entriesCache = [];
+  sessionsCache = [];
+  decisionsCache = [];
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem(KEYS.entries);
+      window.localStorage.removeItem(KEYS.sessions);
+      window.localStorage.removeItem(KEYS.decisions);
+    } catch {
+      // Non-fatal.
+    }
+  }
+  emitChange();
+}

@@ -7,23 +7,35 @@ import type { Option } from "@/config/types";
 export function Screen({
   title,
   back = "/",
+  onBack,
   children,
 }: {
   title?: string;
   back?: string | null;
+  /** When provided, the back button calls this instead of navigating. */
+  onBack?: () => void;
   children: ReactNode;
 }) {
+  const backButtonClass =
+    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-mist active:bg-line";
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 pb-12 pt-6">
       <header className="mb-6 flex items-center gap-3">
-        {back && (
-          <Link
-            href={back}
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
             aria-label="Back"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-mist active:bg-line"
+            className={backButtonClass}
           >
             ←
-          </Link>
+          </button>
+        ) : (
+          back && (
+            <Link href={back} aria-label="Back" className={backButtonClass}>
+              ←
+            </Link>
+          )
         )}
         {title && (
           <h1 className="text-lg font-semibold tracking-wide text-mist">

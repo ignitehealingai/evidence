@@ -20,6 +20,11 @@ export default function BigDecisionMode() {
 
   const branch = decided ? config.branches[decided] : null;
 
+  function goBack() {
+    if (step === "decided") setStep("what");
+    if (step === "process") setStep("decided");
+  }
+
   function save(withDelay: boolean) {
     if (!decided) return;
     addDecision({
@@ -42,7 +47,13 @@ export default function BigDecisionMode() {
   }
 
   return (
-    <Screen title="Big Decision Mode" back={step === "what" ? "/" : null}>
+    <Screen
+      title="Big Decision Mode"
+      back={step === "what" ? "/" : null}
+      onBack={
+        step === "decided" || step === "process" ? goBack : undefined
+      }
+    >
       {step === "what" && (
         <div className="flex flex-1 flex-col">
           <p className="mb-1 text-lg font-medium text-mist">{config.intro}</p>

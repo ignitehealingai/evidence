@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { evidenceCategoryLabel, getProfile } from "@/config";
-import { useEntries, useSessions } from "@/lib/storage";
+import { clearAllData, useEntries, useSessions } from "@/lib/storage";
 import { computeStats } from "@/lib/stats";
 import { Button, Screen, SectionLabel } from "@/components/ui";
 
@@ -103,6 +103,27 @@ export default function EvidenceDashboard() {
 
           <div className="mt-8">
             <Button href="/log-win">Log a win</Button>
+          </div>
+
+          <div className="mt-10 border-t border-line pt-5 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "Erase all logged data from this device? This removes every entry, check-in, and decision. It cannot be undone."
+                  )
+                ) {
+                  clearAllData();
+                }
+              }}
+              className="text-xs text-fog underline underline-offset-2"
+            >
+              Erase all data on this device
+            </button>
+            <p className="mt-2 text-[11px] text-fog/70">
+              Useful for clearing test entries. Starting fresh is allowed.
+            </p>
           </div>
         </>
       )}

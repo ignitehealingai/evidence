@@ -46,6 +46,7 @@ export default function IntensityFlow() {
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
   const [outcomes, setOutcomes] = useState<string[]>([]);
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
   const [evidenceText, setEvidenceText] = useState("");
   const [evidenceCategory, setEvidenceCategory] = useState("other");
 
@@ -76,6 +77,29 @@ export default function IntensityFlow() {
     setStep("try");
   }
 
+  function goBack() {
+    switch (step) {
+      case "context":
+        setStep("feelings");
+        break;
+      case "body":
+        setStep("context");
+        break;
+      case "urge":
+        setStep("body");
+        break;
+      case "pause":
+        setStep("urge");
+        break;
+      case "try":
+        setStep("pause");
+        break;
+      case "reflect":
+        setStep(categoryId ? "try" : "pause");
+        break;
+    }
+  }
+
   function finish() {
     addSession({
       startedAt,
@@ -88,6 +112,14 @@ export default function IntensityFlow() {
       interventionId: interventionId ?? undefined,
       outcomes,
     });
+    for (const text of selectedExamples) {
+      const example = profile.evidenceExamples.find((e) => e.text === text);
+      addEntry({
+        text,
+        category: example?.category ?? "other",
+        source: "reflection",
+      });
+    }
     if (evidenceText.trim()) {
       addEntry({
         text: evidenceText.trim(),
@@ -104,6 +136,9 @@ export default function IntensityFlow() {
     <Screen
       title={step === "done" ? undefined : "I need intensity"}
       back={step === "feelings" ? "/" : null}
+      onBack={
+        step !== "feelings" && step !== "done" ? goBack : undefined
+      }
     >
       {step !== "done" && <StepDots step={stepIndex + 1} total={7} />}
 
@@ -299,30 +334,46 @@ export default function IntensityFlow() {
           )}
 
           <SectionLabel>
-            One piece of evidence that I&rsquo;m changing
+            Evidence that I&rsquo;m changing
           </SectionLabel>
+          <p className="mb-2 text-xs text-fog">
+            Tap everything that&rsquo;s true. More than one counts.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {profile.evidenceExamples.map((example) => {
+              const on = selectedExamples.includes(example.text);
+              return (
+                <button
+                  key={example.text}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() =>
+                    setSelectedExamples((prev) =>
+                      on
+                        ? prev.filter((t) => t !== example.text)
+                        : [...prev, example.text]
+                    )
+                  }
+                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                    on
+                      ? "border-glow bg-glow/15 font-medium text-glow"
+                      : "border-line bg-surface text-fog active:bg-line"
+                  }`}
+                >
+                  {example.text}
+                </button>
+              );
+            })}
+          </div>
+
+          <SectionLabel>Add your own (optional)</SectionLabel>
           <textarea
             value={evidenceText}
             onChange={(e) => setEvidenceText(e.target.value)}
-            placeholder="I paused. I told the truth. I came back."
-            rows={3}
+            placeholder="What else did you do differently?"
+            rows={2}
             className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-mist placeholder:text-fog/60 focus:border-glow focus:outline-none"
           />
-          <div className="mt-3 flex max-h-36 flex-wrap gap-2 overflow-y-auto">
-            {profile.evidenceExamples.map((example) => (
-              <button
-                key={example.text}
-                type="button"
-                onClick={() => {
-                  setEvidenceText(example.text);
-                  setEvidenceCategory(example.category);
-                }}
-                className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs text-fog transition active:bg-line"
-              >
-                {example.text}
-              </button>
-            ))}
-          </div>
 
           {evidenceText.trim() && (
             <>

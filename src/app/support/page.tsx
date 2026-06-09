@@ -13,7 +13,7 @@ export default function Support() {
   const [reachedOut, setReachedOut] = useState<string | null>(null);
 
   function phoneFor(contact: SupportContact): string | undefined {
-    return contact.phone ?? storedPhones[contact.id];
+    return storedPhones[contact.id] ?? contact.phone;
   }
 
   function logReachOut(contact: SupportContact) {
