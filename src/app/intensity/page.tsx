@@ -324,6 +324,21 @@ export default function IntensityFlow() {
 
       {step === "reflect" && (
         <div className="flex flex-1 flex-col">
+          <div className="mb-6 rounded-2xl border border-calm/40 bg-calm/10 px-4 py-4 text-sm leading-relaxed text-mist">
+            <p className="font-semibold text-calm">Permission is not action.</p>
+            <p className="mt-2">
+              I give myself permission to feel{" "}
+              <span className="font-medium text-calm">
+                {feelingLabels(profile, feelings)}
+              </span>{" "}
+              — without acting on it.
+            </p>
+            <p className="mt-2">
+              These are human feelings. I&rsquo;m empowered to choose how I
+              navigate them. I don&rsquo;t have to fall back on my numbing or
+              escape patterns.
+            </p>
+          </div>
           <h2 className="text-2xl font-semibold text-mist">What happened?</h2>
           <div className="mt-4">
             <ChipGrid
@@ -441,6 +456,19 @@ function SelectStep({
       </div>
     </div>
   );
+}
+
+function feelingLabels(
+  profile: ReturnType<typeof getProfile>,
+  selected: string[]
+): string {
+  const labels = selected
+    .filter((id) => id !== "dont-know")
+    .map((id) => profile.feelings.find((f) => f.id === id)?.label)
+    .filter((label): label is string => Boolean(label));
+  if (labels.length === 0) return "whatever is here";
+  if (labels.length === 1) return labels[0];
+  return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
 }
 
 function formatTime(totalSeconds: number): string {

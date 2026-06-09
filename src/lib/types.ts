@@ -1,6 +1,11 @@
 // Record types persisted by the local-first storage layer.
 
-export type EvidenceSource = "win" | "reflection" | "support" | "decision";
+export type EvidenceSource =
+  | "win"
+  | "reflection"
+  | "support"
+  | "decision"
+  | "gratitude";
 
 export type EvidenceEntry = {
   id: string;

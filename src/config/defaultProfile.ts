@@ -212,30 +212,6 @@ export const defaultProfile: Profile = {
       ],
     },
     {
-      id: "permission",
-      name: "Permission",
-      useWhen: ["a feeling wants to be felt", "shame", "grief", "pressure to act"],
-      matchTags: [
-        "ashamed",
-        "sad",
-        "grief",
-        "avoiding-feelings",
-        "want-act-now",
-        "deserve-reward",
-        "dont-know",
-      ],
-      prompt:
-        "I give myself permission to feel ______ without acting on it yet.",
-      interventions: [
-        { id: "write-sentence", label: "write the sentence" },
-        { id: "voice-memo", label: "voice memo" },
-        { id: "hand-on-chest", label: "hand on chest" },
-        { id: "hand-on-belly", label: "hand on belly" },
-        { id: "repeat-permission", label: "repeat: Permission is not action." },
-      ],
-      reminder: "Permission is not action.",
-    },
-    {
       id: "anger",
       name: "Anger",
       useWhen: ["resentful", "irritated", "activated", "defensive"],
@@ -387,6 +363,7 @@ export const defaultProfile: Profile = {
 
   evidenceCategories: [
     { id: "pause", label: "Pauses" },
+    { id: "gratitude", label: "Gratitudes" },
     { id: "support", label: "Support reach-outs" },
     { id: "craving-survived", label: "Cravings survived" },
     { id: "honest-moment", label: "Honest moments" },

@@ -35,6 +35,12 @@ export default function Home() {
         LOG A WIN
       </Link>
       <Link
+        href="/thankful"
+        className="block rounded-2xl border border-line bg-surface px-5 py-4 text-center font-semibold tracking-wide text-mist transition active:bg-line"
+      >
+        I AM THANKFUL FOR
+      </Link>
+      <Link
         href="/support"
         className="block rounded-2xl border border-line bg-surface px-5 py-4 text-center font-semibold tracking-wide text-mist transition active:bg-line"
       >

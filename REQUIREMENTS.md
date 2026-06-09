@@ -11,10 +11,11 @@ match.
 
 A big yellow button: **I NEED INTENSITY**
 
-Below it, four smaller buttons:
+Below it, five smaller buttons:
 
 - SHOW ME EVIDENCE I'M CHANGING
 - LOG A WIN
+- I AM THANKFUL FOR
 - SUPPORT
 - BIG DECISION MODE
 
@@ -94,16 +95,6 @@ trying, and any questions or reminders it shows. **Edit freely.**
 - **Try:** lie down · weighted blanket · hot shower · prayer · breathing ·
   pet Sunny · nap · reduce stimulation · sit outside
 
-### Permission
-- **What it's for:** when a feeling (shame, grief, sadness, wanting
-  something) is pushing you to act. The practice is allowing the feeling
-  WITHOUT acting on it yet.
-- **Shows this prompt:** "I give myself permission to feel ______ without
-  acting on it yet."
-- **Try:** write the sentence · voice memo · hand on chest · hand on belly ·
-  repeat: Permission is not action.
-- **Reminder shown:** Permission is not action.
-
 ### Anger
 - **Recommended when:** resentful, irritated, activated, defensive
 - **Try:** unsent rant · fast walk · stomp · pillow hit
@@ -152,6 +143,13 @@ the line "You can do anything for 10 minutes."
 
 ## 5. The reflection screen (after trying something)
 
+At the top, a permission card that names the feelings selected earlier:
+
+> **Permission is not action.**
+> I give myself permission to feel [angry, aroused, ...] — without acting
+> on it. These are human feelings. I'm empowered to choose how I navigate
+> them. I don't have to fall back on my numbing or escape patterns.
+
 **What happened?** (pick any): craving passed · craving decreased · craving
 stayed · I acted on it · I paused · I reached out · I learned something ·
 I still don't know
@@ -178,7 +176,7 @@ needed a substance to do. · Let someone influence me without losing myself.
 Shows: total pieces of evidence, number of check-ins, counts in each
 category, your most common dysregulators, and the most recent entries.
 
-Categories counted: Pauses · Support reach-outs · Cravings survived ·
+Categories counted: Pauses · Gratitudes · Support reach-outs · Cravings survived ·
 Honest moments · Parenting wins · Recovery wins · Boundaries held ·
 Difficult conversations · Meetings attended · Acts of repair ·
 Sober creative sessions · Decisions delayed · Other evidence
@@ -209,7 +207,15 @@ reflection screen, and a category picker. Any size counts.
 
 ---
 
-## 9. Big Decision Mode
+## 9. I Am Thankful For
+
+A quick gratitude page: type anything you're thankful for and save it — as
+many as you want in a row. Each one is saved as evidence ("Gratitudes" on
+the dashboard) and the most recent ten are shown on the page.
+
+---
+
+## 10. Big Decision Mode
 
 For tattoos, purchases, relationships, job changes, quitting, starting.
 
@@ -230,7 +236,7 @@ For tattoos, purchases, relationships, job changes, quitting, starting.
 
 ---
 
-## 10. Rules the app always follows
+## 11. Rules the app always follows
 
 1. **No shame.** Never "you failed / you relapsed." Always "you noticed /
    you paused / you came back / evidence counts."
