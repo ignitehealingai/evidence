@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  /* Calm, low-stimulation night palette with one warm accent. */
+  --color-night: #0b1020;
+  --color-deep: #101730;
+  --color-surface: #171f3a;
+  --color-line: #2a3354;
+  --color-fog: #8b93b8;
+  --color-mist: #cdd3ee;
+  --color-glow: #f0b65c;
+  --color-calm: #5fb8a6;
+}
+
+html {
+  background-color: var(--color-night);
+}
+
+body {
+  background: radial-gradient(
+      120% 80% at 50% 0%,
+      var(--color-deep) 0%,
+      var(--color-night) 70%
+    )
+    fixed;
+  color: var(--color-mist);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
