@@ -18,10 +18,10 @@ type Step =
   | "done";
 
 const STEP_ORDER: Step[] = [
+  "urge",
+  "body",
   "feelings",
   "context",
-  "body",
-  "urge",
   "pause",
   "try",
   "reflect",
@@ -33,7 +33,7 @@ const TIMER_SECONDS = 10 * 60;
 export default function IntensityFlow() {
   const profile = getProfile();
 
-  const [step, setStep] = useState<Step>("feelings");
+  const [step, setStep] = useState<Step>("urge");
   const [startedAt] = useState(() => nowIso());
 
   const [feelings, setFeelings] = useState<string[]>([]);
@@ -79,17 +79,17 @@ export default function IntensityFlow() {
 
   function goBack() {
     switch (step) {
+      case "body":
+        setStep("urge");
+        break;
+      case "feelings":
+        setStep("body");
+        break;
       case "context":
         setStep("feelings");
         break;
-      case "body":
-        setStep("context");
-        break;
-      case "urge":
-        setStep("body");
-        break;
       case "pause":
-        setStep("urge");
+        setStep("context");
         break;
       case "try":
         setStep("pause");
@@ -135,16 +135,43 @@ export default function IntensityFlow() {
   return (
     <Screen
       title={step === "done" ? undefined : "I need intensity"}
-      back={step === "feelings" ? "/" : null}
-      onBack={
-        step !== "feelings" && step !== "done" ? goBack : undefined
-      }
+      back={step === "urge" ? "/" : null}
+      onBack={step !== "urge" && step !== "done" ? goBack : undefined}
     >
       {step !== "done" && <StepDots step={stepIndex + 1} total={7} />}
 
+      {step === "urge" && (
+        <SelectStep
+          title="What do you want to do right now?"
+          subtitle="Select one. Naming it is not doing it."
+          onNext={() => setStep("body")}
+        >
+          <ChipGrid
+            options={profile.urges}
+            selected={urge}
+            onChange={setUrge}
+            single
+          />
+        </SelectStep>
+      )}
+
+      {step === "body" && (
+        <SelectStep
+          title="What is happening in your body?"
+          subtitle="Select all that apply."
+          onNext={() => setStep("feelings")}
+        >
+          <ChipGrid
+            options={profile.bodySensations}
+            selected={body}
+            onChange={setBody}
+          />
+        </SelectStep>
+      )}
+
       {step === "feelings" && (
         <SelectStep
-          title="What is happening right now?"
+          title="How are you feeling?"
           subtitle="Select all that apply. There are no wrong answers."
           onNext={() => setStep("context")}
         >
@@ -160,7 +187,7 @@ export default function IntensityFlow() {
         <SelectStep
           title="What else is going on?"
           subtitle="This is pattern recognition, not analysis."
-          onNext={() => setStep("body")}
+          onNext={() => setStep("pause")}
         >
           {profile.dysregulatorGroups.map((group) => (
             <div key={group.id}>
@@ -175,35 +202,6 @@ export default function IntensityFlow() {
         </SelectStep>
       )}
 
-      {step === "body" && (
-        <SelectStep
-          title="What is happening in your body?"
-          subtitle="Select all that apply."
-          onNext={() => setStep("urge")}
-        >
-          <ChipGrid
-            options={profile.bodySensations}
-            selected={body}
-            onChange={setBody}
-          />
-        </SelectStep>
-      )}
-
-      {step === "urge" && (
-        <SelectStep
-          title="What do you want to do right now?"
-          subtitle="Select one. Naming it is not doing it."
-          onNext={() => setStep("pause")}
-        >
-          <ChipGrid
-            options={profile.urges}
-            selected={urge}
-            onChange={setUrge}
-            single
-          />
-        </SelectStep>
-      )}
-
       {step === "pause" && (
         <div className="flex flex-1 flex-col">
           <div className="my-6 space-y-2 text-center">
@@ -213,39 +211,44 @@ export default function IntensityFlow() {
               </p>
             ))}
           </div>
-          <SectionLabel>Start here</SectionLabel>
-          <div className="space-y-3">
-            {recommendations.map(({ category: rec }) => (
-              <button
-                key={rec.id}
-                type="button"
-                onClick={() => chooseCategory(rec.id)}
-                className="block w-full rounded-2xl border border-line bg-surface px-5 py-4 text-left transition active:bg-line"
-              >
-                <span className="block text-base font-semibold text-glow">
-                  {rec.name}
-                </span>
-                <span className="mt-1 block text-sm text-fog">
-                  for when you&rsquo;re {rec.useWhen.slice(0, 3).join(", ")}
-                </span>
-              </button>
-            ))}
-          </div>
-          <details className="mt-4">
-            <summary className="cursor-pointer text-sm text-fog">
+          {recommendations.length > 0 && (
+            <button
+              type="button"
+              onClick={() => chooseCategory(recommendations[0].category.id)}
+              className="block w-full rounded-3xl bg-glow px-6 py-8 text-center shadow-xl shadow-glow/20 transition active:scale-[0.99]"
+            >
+              <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-night/70">
+                Start here
+              </span>
+              <span className="mt-2 block text-2xl font-bold text-night">
+                {recommendations[0].category.name}
+              </span>
+              <span className="mt-1 block text-sm text-night/70">
+                for when you&rsquo;re{" "}
+                {recommendations[0].category.useWhen.slice(0, 3).join(", ")}
+              </span>
+            </button>
+          )}
+          <details className="mt-5">
+            <summary className="cursor-pointer text-center text-sm text-fog">
               Show all categories
             </summary>
             <div className="mt-3 space-y-2">
               {profile.interventionCategories
-                .filter((c) => !recommendations.some((r) => r.category.id === c.id))
+                .filter((c) => c.id !== recommendations[0]?.category.id)
                 .map((c) => (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => chooseCategory(c.id)}
-                    className="block w-full rounded-2xl border border-line bg-surface px-5 py-3 text-left text-sm text-mist transition active:bg-line"
+                    className="block w-full rounded-2xl border border-line bg-surface px-5 py-3 text-left transition active:bg-line"
                   >
-                    {c.name}
+                    <span className="block text-sm font-medium text-mist">
+                      {c.name}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-fog">
+                      for when you&rsquo;re {c.useWhen.slice(0, 3).join(", ")}
+                    </span>
                   </button>
                 ))}
             </div>
@@ -267,6 +270,9 @@ export default function IntensityFlow() {
             </p>
           )}
           <SectionLabel>Try one thing</SectionLabel>
+          <p className="mb-2 text-xs text-fog">
+            You can do anything for 10 minutes.
+          </p>
           <ChipGrid
             options={category.interventions}
             selected={interventionId ? [interventionId] : []}
