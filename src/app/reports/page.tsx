@@ -12,6 +12,7 @@ import {
   interventionEffects,
   sequenceReport,
   urgeCounts,
+  winsAfterEachPath,
   type CountRow,
 } from "@/lib/reports";
 import { ChipGrid, Screen, SectionLabel } from "@/components/ui";
@@ -51,6 +52,10 @@ export default function Reports() {
   const urges = useMemo(
     () => urgeCounts(profile, sessions),
     [profile, sessions]
+  );
+  const paths = useMemo(
+    () => winsAfterEachPath(entries, sessions),
+    [entries, sessions]
   );
 
   const kindOptions = EVENT_KINDS.map((k) => ({ id: k.id, label: k.label }));
@@ -142,6 +147,37 @@ export default function Reports() {
           ))}
         </div>
       )}
+      <SectionLabel>What follows each path?</SectionLabel>
+      {paths.rodeItOut.total + paths.acted.total === 0 ? (
+        <p className="text-sm text-fog">
+          Once you&rsquo;ve completed some check-ins, this will show how often
+          a win or gratitude followed each kind — riding it out, and acting
+          on it.
+        </p>
+      ) : (
+        <>
+          <div className="space-y-2">
+            <PathCard
+              label="When I rode it out"
+              total={paths.rodeItOut.total}
+              followed={paths.rodeItOut.followedByWin}
+              windowHours={paths.windowHours}
+            />
+            <PathCard
+              label="When I acted on it"
+              total={paths.acted.total}
+              followed={paths.acted.followedByWin}
+              windowHours={paths.windowHours}
+            />
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-fog">
+            Not a scoreboard. Both rows exist because you logged honestly —
+            this is just your own evidence about which path tends to give you
+            more of what you actually want.
+          </p>
+        </>
+      )}
+
       <SectionLabel>When do cravings hit?</SectionLabel>
       {sessions.length === 0 ? (
         <p className="text-sm text-fog">
@@ -194,6 +230,38 @@ export default function Reports() {
         <BarList rows={urges} />
       )}
     </Screen>
+  );
+}
+
+function PathCard({
+  label,
+  total,
+  followed,
+  windowHours,
+}: {
+  label: string;
+  total: number;
+  followed: number;
+  windowHours: number;
+}) {
+  return (
+    <div className="rounded-2xl border border-line bg-surface px-4 py-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-mist">{label}</span>
+        <span className="text-sm font-semibold tabular-nums text-glow">
+          {total === 0 ? "—" : `${Math.round((followed / total) * 100)}%`}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-fog">
+        {total === 0
+          ? "no check-ins like this yet"
+          : `a win or gratitude followed within ${
+              windowHours === 24 ? "a day" : `${windowHours}h`
+            } after ${followed} of ${total} ${
+              total === 1 ? "check-in" : "check-ins"
+            }`}
+      </p>
+    </div>
   );
 }
 

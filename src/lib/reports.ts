@@ -242,6 +242,53 @@ export function beforeCaving(
   };
 }
 
+export type PathComparison = {
+  /** Check-ins that did NOT end with "I acted on it". */
+  rodeItOut: { total: number; followedByWin: number };
+  /** Check-ins that ended with "I acted on it". */
+  acted: { total: number; followedByWin: number };
+  windowHours: number;
+};
+
+/**
+ * After each kind of check-in, how often a win was logged within the window.
+ * Framed as information about what follows each path — never a scoreboard.
+ */
+export function winsAfterEachPath(
+  entries: EvidenceEntry[],
+  sessions: IntensitySession[],
+  windowHours = 24
+): PathComparison {
+  // Deliberate wins only (Log a Win / gratitudes), not the reflection chips
+  // saved moments after the check-in itself — those would blur the signal.
+  const winTimes = entries
+    .filter((e) => e.source === "win" || e.source === "gratitude")
+    .map((e) => new Date(e.createdAt).getTime())
+    .filter((t) => Number.isFinite(t))
+    .sort((a, b) => a - b);
+
+  const windowMs = windowHours * 3_600_000;
+
+  const followed = (sessionList: IntensitySession[]) => {
+    let count = 0;
+    for (const session of sessionList) {
+      const t = new Date(session.completedAt).getTime();
+      if (!Number.isFinite(t)) continue;
+      if (winTimes.some((w) => w > t && w - t <= windowMs)) count += 1;
+    }
+    return count;
+  };
+
+  const acted = sessions.filter((s) => s.outcomes.includes("acted-on-it"));
+  const rode = sessions.filter((s) => !s.outcomes.includes("acted-on-it"));
+
+  return {
+    rodeItOut: { total: rode.length, followedByWin: followed(rode) },
+    acted: { total: acted.length, followedByWin: followed(acted) },
+    windowHours,
+  };
+}
+
 /** What the user most often wants to do when intensity hits. */
 export function urgeCounts(
   profile: Profile,
