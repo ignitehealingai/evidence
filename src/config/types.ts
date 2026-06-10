@@ -94,6 +94,11 @@ export type Profile = {
   /** Category ids to suggest when nothing matches. */
   fallbackCategoryIds: string[];
   reflectionOutcomes: Option[];
+  /** Shown on the reflection screen when "I acted on it" is selected. */
+  actedOnIt: {
+    title: string;
+    lines: string[];
+  };
   evidenceCategories: EvidenceCategory[];
   evidenceExamples: EvidenceExample[];
   supportContacts: SupportContact[];

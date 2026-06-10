@@ -348,10 +348,16 @@ export default function IntensityFlow() {
             />
           </div>
           {outcomes.includes("acted-on-it") && (
-            <p className="mt-4 rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-mist">
-              You noticed, and you came back to log it. That honesty is
-              evidence too.
-            </p>
+            <div className="mt-4 rounded-2xl border border-glow/40 bg-glow/10 px-4 py-4">
+              <p className="text-base font-semibold text-glow">
+                {profile.actedOnIt.title}
+              </p>
+              <div className="mt-2 space-y-2 text-sm leading-relaxed text-mist">
+                {profile.actedOnIt.lines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+            </div>
           )}
 
           <SectionLabel>

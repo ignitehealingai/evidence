@@ -361,6 +361,17 @@ export const defaultProfile: Profile = {
     { id: "still-dont-know", label: "I still don't know" },
   ],
 
+  actedOnIt: {
+    title: "No shame spiral. Not tonight.",
+    lines: [
+      "The old pattern was: act, hide, spiral, repeat. You are already breaking it — you came back and you told the truth.",
+      "Nothing resets. Every pause, every honest moment, every reach-out you've ever logged still counts. Caving can't subtract from any of it.",
+      "This is information, not a verdict. Look at what you checked on the way in — tired? isolated? skipped meds? That's the thing to tend to, not a reason to punish yourself.",
+      "Shortening the distance between the slip and the honesty IS the change. You're doing it right now.",
+      "One next right thing: drink some water, text Anthony, rest. You can choose it from here.",
+    ],
+  },
+
   evidenceCategories: [
     { id: "pause", label: "Pauses" },
     { id: "gratitude", label: "Gratitudes" },
