@@ -55,9 +55,12 @@ export default function Thankful() {
             {recentGratitudes.map((entry) => (
               <li
                 key={entry.id}
-                className="rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-mist"
+                className="rounded-2xl border border-line bg-surface px-4 py-3"
               >
-                {entry.text}
+                <p className="text-sm text-mist">{entry.text}</p>
+                <p className="mt-1 text-xs text-fog">
+                  {formatDateTime(entry.createdAt)}
+                </p>
               </li>
             ))}
           </ul>
@@ -65,4 +68,20 @@ export default function Thankful() {
       )}
     </Screen>
   );
+}
+
+function formatDateTime(iso: string): string {
+  try {
+    const d = new Date(iso);
+    return `${d.toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    })} · ${d.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    })}`;
+  } catch {
+    return "";
+  }
 }
