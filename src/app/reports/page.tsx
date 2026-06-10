@@ -6,8 +6,13 @@ import { useEntries, useSessions } from "@/lib/storage";
 import {
   EVENT_KINDS,
   WINDOW_OPTIONS,
+  beforeCaving,
+  cravingsByDayOfWeek,
+  cravingsByTimeOfDay,
   interventionEffects,
   sequenceReport,
+  urgeCounts,
+  type CountRow,
 } from "@/lib/reports";
 import { ChipGrid, Screen, SectionLabel } from "@/components/ui";
 
@@ -35,6 +40,16 @@ export default function Reports() {
 
   const effects = useMemo(
     () => interventionEffects(profile, sessions),
+    [profile, sessions]
+  );
+  const byTime = useMemo(() => cravingsByTimeOfDay(sessions), [sessions]);
+  const byDay = useMemo(() => cravingsByDayOfWeek(sessions), [sessions]);
+  const cavePattern = useMemo(
+    () => beforeCaving(profile, sessions),
+    [profile, sessions]
+  );
+  const urges = useMemo(
+    () => urgeCounts(profile, sessions),
     [profile, sessions]
   );
 
@@ -127,7 +142,82 @@ export default function Reports() {
           ))}
         </div>
       )}
+      <SectionLabel>When do cravings hit?</SectionLabel>
+      {sessions.length === 0 ? (
+        <p className="text-sm text-fog">
+          This fills in as you complete check-ins.
+        </p>
+      ) : (
+        <>
+          <BarList rows={byTime} />
+          {byDay.length > 0 && (
+            <>
+              <p className="mb-2 mt-4 text-xs text-fog">By day of week:</p>
+              <BarList rows={byDay} />
+            </>
+          )}
+        </>
+      )}
+
+      <SectionLabel>What shows up before I cave?</SectionLabel>
+      {cavePattern.cavedSessions === 0 ? (
+        <p className="text-sm text-fog">
+          No check-ins have ended with &ldquo;I acted on it.&rdquo; If one
+          ever does, this will show what was underneath it — information,
+          not a verdict.
+        </p>
+      ) : (
+        <>
+          <p className="mb-2 text-xs text-fog">
+            Across the {cavePattern.cavedSessions}{" "}
+            {cavePattern.cavedSessions === 1 ? "check-in" : "check-ins"} that
+            ended with &ldquo;I acted on it,&rdquo; these were checked most:
+          </p>
+          {cavePattern.topDysregulators.length > 0 && (
+            <BarList rows={cavePattern.topDysregulators} />
+          )}
+          {cavePattern.topFeelings.length > 0 && (
+            <>
+              <p className="mb-2 mt-4 text-xs text-fog">Feelings:</p>
+              <BarList rows={cavePattern.topFeelings} />
+            </>
+          )}
+        </>
+      )}
+
+      <SectionLabel>What do I reach for?</SectionLabel>
+      {urges.length === 0 ? (
+        <p className="text-sm text-fog">
+          This will show which urges come up most in your check-ins.
+        </p>
+      ) : (
+        <BarList rows={urges} />
+      )}
     </Screen>
+  );
+}
+
+function BarList({ rows }: { rows: CountRow[] }) {
+  const max = Math.max(...rows.map((r) => r.count), 1);
+  return (
+    <div className="space-y-1.5">
+      {rows.map((row) => (
+        <div key={row.label} className="flex items-center gap-2">
+          <span className="w-36 shrink-0 truncate text-xs text-mist">
+            {row.label}
+          </span>
+          <div className="h-4 flex-1 overflow-hidden rounded-full bg-surface">
+            <div
+              className="h-full rounded-full bg-glow/70"
+              style={{ width: `${(row.count / max) * 100}%` }}
+            />
+          </div>
+          <span className="w-6 shrink-0 text-right text-xs tabular-nums text-fog">
+            {row.count}
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }
 

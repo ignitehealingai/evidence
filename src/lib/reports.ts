@@ -1,6 +1,7 @@
 // Report computations over locally stored entries and sessions.
 
 import type { Profile } from "@/config/types";
+import { optionLabel } from "@/config";
 import type { EvidenceEntry, IntensitySession } from "./types";
 
 export type EventKindId =
@@ -160,4 +161,99 @@ export function interventionEffects(
     .sort(
       (a, b) => b.helped / b.total - a.helped / a.total || b.total - a.total
     );
+}
+
+export type CountRow = { label: string; count: number };
+
+const TIME_BUCKETS = [
+  { label: "Early morning (5–9am)", from: 5, to: 9 },
+  { label: "Morning (9–12)", from: 9, to: 12 },
+  { label: "Afternoon (12–5pm)", from: 12, to: 17 },
+  { label: "Evening (5–9pm)", from: 17, to: 21 },
+  { label: "Night (9pm–12)", from: 21, to: 24 },
+  { label: "Late night (12–5am)", from: 0, to: 5 },
+];
+
+/** When check-ins (cravings) start, bucketed by time of day. */
+export function cravingsByTimeOfDay(sessions: IntensitySession[]): CountRow[] {
+  const counts = TIME_BUCKETS.map(() => 0);
+  for (const session of sessions) {
+    const d = new Date(session.startedAt);
+    if (Number.isNaN(d.getTime())) continue;
+    const hour = d.getHours();
+    const i = TIME_BUCKETS.findIndex((b) => hour >= b.from && hour < b.to);
+    if (i >= 0) counts[i] += 1;
+  }
+  return TIME_BUCKETS.map((b, i) => ({ label: b.label, count: counts[i] }));
+}
+
+const DAY_LABELS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+/** Check-ins by day of week, ordered by frequency. */
+export function cravingsByDayOfWeek(sessions: IntensitySession[]): CountRow[] {
+  const counts = new Array(7).fill(0);
+  for (const session of sessions) {
+    const d = new Date(session.startedAt);
+    if (!Number.isNaN(d.getTime())) counts[d.getDay()] += 1;
+  }
+  return DAY_LABELS.map((label, i) => ({ label, count: counts[i] }))
+    .filter((r) => r.count > 0)
+    .sort((a, b) => b.count - a.count);
+}
+
+export type CavePattern = {
+  cavedSessions: number;
+  topDysregulators: CountRow[];
+  topFeelings: CountRow[];
+};
+
+/** What was checked during the check-ins that ended in "I acted on it". */
+export function beforeCaving(
+  profile: Profile,
+  sessions: IntensitySession[]
+): CavePattern {
+  const caved = sessions.filter((s) => s.outcomes.includes("acted-on-it"));
+
+  const tally = (ids: string[][]): CountRow[] => {
+    const counts = new Map<string, number>();
+    for (const list of ids) {
+      for (const id of list) {
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([id, count]) => ({ label: optionLabel(profile, id), count }));
+  };
+
+  return {
+    cavedSessions: caved.length,
+    topDysregulators: tally(caved.map((s) => s.dysregulators)),
+    topFeelings: tally(caved.map((s) => s.feelings)),
+  };
+}
+
+/** What the user most often wants to do when intensity hits. */
+export function urgeCounts(
+  profile: Profile,
+  sessions: IntensitySession[]
+): CountRow[] {
+  const counts = new Map<string, number>();
+  for (const session of sessions) {
+    if (!session.urge) continue;
+    counts.set(session.urge, (counts.get(session.urge) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([id, count]) => ({ label: optionLabel(profile, id), count }));
 }
