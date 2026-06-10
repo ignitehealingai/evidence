@@ -81,6 +81,23 @@ export function addEntry(
   return entry;
 }
 
+export function updateEntry(
+  id: string,
+  changes: Partial<Pick<EvidenceEntry, "text" | "category">>
+): void {
+  entriesCache = getEntries().map((e) =>
+    e.id === id ? { ...e, ...changes } : e
+  );
+  writeList(KEYS.entries, entriesCache);
+  emitChange();
+}
+
+export function deleteEntry(id: string): void {
+  entriesCache = getEntries().filter((e) => e.id !== id);
+  writeList(KEYS.entries, entriesCache);
+  emitChange();
+}
+
 export function useEntries(): EvidenceEntry[] {
   return useSyncExternalStore(subscribe, getEntries, () => EMPTY);
 }

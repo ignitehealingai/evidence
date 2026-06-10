@@ -14,28 +14,16 @@ export type DashboardStats = {
   topDysregulators: { label: string; count: number }[];
 };
 
-const CRAVING_SURVIVED_OUTCOMES = new Set(["craving-passed", "craving-decreased"]);
-
 export function computeStats(
   profile: Profile,
   entries: EvidenceEntry[],
   sessions: IntensitySession[]
 ): DashboardStats {
+  // Every count comes from exactly one logged entry — one tap, one count.
+  // Nothing is derived or double-counted.
   const counts = new Map<string, number>();
-  const bump = (id: string, by = 1) => counts.set(id, (counts.get(id) ?? 0) + by);
-
   for (const entry of entries) {
-    bump(entry.category);
-  }
-
-  // Sessions contribute derived evidence: pausing, surviving a craving, and
-  // reaching out all count, even if the user didn't write anything down.
-  for (const session of sessions) {
-    if (session.outcomes.includes("paused")) bump("pause");
-    if (session.outcomes.includes("reached-out")) bump("support");
-    if (session.outcomes.some((o) => CRAVING_SURVIVED_OUTCOMES.has(o))) {
-      bump("craving-survived");
-    }
+    counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);
   }
 
   const orderedCounts = profile.evidenceCategories
@@ -56,8 +44,7 @@ export function computeStats(
 
   return {
     counts: orderedCounts,
-    totalEvidence:
-      orderedCounts.reduce((sum, c) => sum + c.count, 0),
+    totalEvidence: entries.length,
     checkIns: sessions.length,
     topDysregulators,
   };

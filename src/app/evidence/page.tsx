@@ -1,15 +1,31 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { evidenceCategoryLabel, getProfile } from "@/config";
-import { clearAllData, useEntries, useSessions } from "@/lib/storage";
+import {
+  clearAllData,
+  deleteEntry,
+  updateEntry,
+  useEntries,
+  useSessions,
+} from "@/lib/storage";
 import { computeStats } from "@/lib/stats";
-import { Button, Screen, SectionLabel } from "@/components/ui";
+import { Button, ChipGrid, Screen, SectionLabel } from "@/components/ui";
 
 export default function EvidenceDashboard() {
   const profile = getProfile();
   const entries = useEntries();
   const sessions = useSessions();
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const [editCategory, setEditCategory] = useState("other");
+
+  function saveEdit() {
+    if (!editingId || !editText.trim()) return;
+    updateEntry(editingId, { text: editText.trim(), category: editCategory });
+    setEditingId(null);
+  }
 
   const stats = useMemo(
     () => computeStats(profile, entries, sessions),
@@ -85,18 +101,91 @@ export default function EvidenceDashboard() {
             <>
               <SectionLabel>Recent evidence</SectionLabel>
               <ul className="space-y-2">
-                {entries.slice(0, 25).map((entry) => (
-                  <li
-                    key={entry.id}
-                    className="rounded-2xl border border-line bg-surface px-4 py-3"
-                  >
-                    <p className="text-sm text-mist">{entry.text}</p>
-                    <p className="mt-1 text-xs text-fog">
-                      {evidenceCategoryLabel(profile, entry.category)} ·{" "}
-                      {formatDate(entry.createdAt)}
-                    </p>
-                  </li>
-                ))}
+                {entries.slice(0, 25).map((entry) =>
+                  editingId === entry.id ? (
+                    <li
+                      key={entry.id}
+                      className="rounded-2xl border border-glow/50 bg-surface px-4 py-3"
+                    >
+                      <textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        rows={2}
+                        autoFocus
+                        className="w-full rounded-xl border border-line bg-deep px-3 py-2 text-sm text-mist focus:border-glow focus:outline-none"
+                      />
+                      <div className="mt-2">
+                        <ChipGrid
+                          options={profile.evidenceCategories.map((c) => ({
+                            id: c.id,
+                            label: c.label,
+                          }))}
+                          selected={[editCategory]}
+                          onChange={(ids) =>
+                            setEditCategory(ids[0] ?? "other")
+                          }
+                          single
+                        />
+                      </div>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={saveEdit}
+                          disabled={!editText.trim()}
+                          className="flex-1 rounded-xl bg-glow px-4 py-2 text-sm font-semibold text-night disabled:opacity-40"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingId(null)}
+                          className="flex-1 rounded-xl border border-line px-4 py-2 text-sm text-fog"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </li>
+                  ) : (
+                    <li
+                      key={entry.id}
+                      className="rounded-2xl border border-line bg-surface px-4 py-3"
+                    >
+                      <p className="text-sm text-mist">{entry.text}</p>
+                      <div className="mt-1 flex items-center justify-between">
+                        <p className="text-xs text-fog">
+                          {evidenceCategoryLabel(profile, entry.category)} ·{" "}
+                          {formatDate(entry.createdAt)}
+                        </p>
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingId(entry.id);
+                              setEditText(entry.text);
+                              setEditCategory(entry.category);
+                            }}
+                            className="text-xs text-fog underline underline-offset-2"
+                          >
+                            edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (
+                                window.confirm("Delete this entry?")
+                              ) {
+                                deleteEntry(entry.id);
+                              }
+                            }}
+                            className="text-xs text-fog underline underline-offset-2"
+                          >
+                            delete
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  )
+                )}
               </ul>
             </>
           )}

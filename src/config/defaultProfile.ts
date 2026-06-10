@@ -392,6 +392,7 @@ export const defaultProfile: Profile = {
   evidenceExamples: [
     { text: "I paused.", category: "pause" },
     { text: "I waited 10 minutes.", category: "pause" },
+    { text: "Craving survived.", category: "craving-survived" },
     { text: "I told the truth.", category: "honest-moment" },
     { text: "I texted Anthony.", category: "support" },
     { text: "Asked for help.", category: "support" },
