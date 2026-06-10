@@ -190,8 +190,11 @@ export default function EvidenceDashboard() {
             </>
           )}
 
-          <div className="mt-8">
+          <div className="mt-8 space-y-3">
             <Button href="/log-win">Log a win</Button>
+            <Button variant="soft" href="/reports">
+              Reports — find my patterns
+            </Button>
           </div>
 
           <div className="mt-10 border-t border-line pt-5 text-center">
