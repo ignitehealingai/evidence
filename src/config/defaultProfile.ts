@@ -123,6 +123,7 @@ export const defaultProfile: Profile = {
     { id: "create-chaos", label: "create chaos" },
     { id: "write-all-night", label: "write all night" },
     { id: "avoid-responsibility", label: "avoid responsibility" },
+    { id: "give-in-boundary", label: "give in on a boundary" },
     { id: "sleep", label: "sleep" },
     { id: "disappear", label: "disappear" },
     { id: "quit-something", label: "quit something" },
@@ -222,6 +223,7 @@ export const defaultProfile: Profile = {
         "parents",
         "co-parent-stress",
         "ex-stress",
+        "give-in-boundary",
       ],
       interventions: [
         { id: "unsent-rant", label: "unsent rant" },
