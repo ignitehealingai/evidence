@@ -131,6 +131,11 @@ export const defaultProfile: Profile = {
     { id: "dont-know", label: "don't know" },
   ],
 
+  urgeReminders: {
+    "give-in-boundary":
+      "I can feel how much she hates this — and how much I hate her being upset — without rescuing either of us from it.",
+  },
+
   pauseMessage: [
     "You do not need to understand this yet.",
     "You only need to pause.",

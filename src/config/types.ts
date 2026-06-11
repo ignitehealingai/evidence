@@ -88,6 +88,11 @@ export type Profile = {
   bodySensations: Option[];
   /** Step 5: What do you want to do right now? */
   urges: Option[];
+  /**
+   * Optional reminder shown on the pause screen when a specific urge was
+   * selected (urge id -> line).
+   */
+  urgeReminders?: Record<string, string>;
   /** Shown between the check-in and the intervention. */
   pauseMessage: string[];
   interventionCategories: InterventionCategory[];

@@ -211,6 +211,13 @@ export default function IntensityFlow() {
               </p>
             ))}
           </div>
+          {urge[0] && profile.urgeReminders?.[urge[0]] && (
+            <div className="mb-6 rounded-2xl border border-calm/40 bg-calm/10 px-4 py-4 text-center">
+              <p className="text-sm leading-relaxed text-calm">
+                {profile.urgeReminders[urge[0]]}
+              </p>
+            </div>
+          )}
           {recommendations.length > 0 && (
             <button
               type="button"
