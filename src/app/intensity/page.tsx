@@ -222,7 +222,7 @@ export default function IntensityFlow() {
             <button
               type="button"
               onClick={() => chooseCategory(recommendations[0].category.id)}
-              className="block w-full rounded-3xl bg-glow px-6 py-8 text-center shadow-xl shadow-glow/20 transition active:scale-[0.99]"
+              className="block w-full rounded-3xl bg-calm px-6 py-8 text-center shadow-xl shadow-calm/20 transition active:scale-[0.99]"
             >
               <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-night/70">
                 Start here

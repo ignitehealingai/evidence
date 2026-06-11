@@ -17,7 +17,7 @@ export default function Home() {
 
       <Link
         href="/intensity"
-        className="block rounded-3xl bg-glow px-6 py-10 text-center text-2xl font-bold tracking-wide text-night shadow-xl shadow-glow/20 transition active:scale-[0.99]"
+        className="block rounded-3xl bg-ember px-6 py-10 text-center text-2xl font-bold tracking-wide text-night shadow-xl shadow-ember/20 transition active:scale-[0.99]"
       >
         I NEED INTENSITY
       </Link>
