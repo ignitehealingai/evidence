@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getProfile } from "@/config";
+import { ResumeBanner } from "@/components/ResumeBanner";
 
 export default function Home() {
   const profile = getProfile();
@@ -15,9 +16,11 @@ export default function Home() {
         </p>
       </div>
 
+      <ResumeBanner />
+
       <Link
         href="/intensity"
-        className="block rounded-3xl bg-ember px-6 py-10 text-center text-2xl font-bold tracking-wide text-night shadow-xl shadow-ember/20 transition active:scale-[0.99]"
+        className="block rounded-3xl bg-calm px-6 py-10 text-center text-2xl font-bold tracking-wide text-night shadow-xl shadow-calm/20 transition active:scale-[0.99]"
       >
         I NEED INTENSITY
       </Link>
@@ -38,7 +41,7 @@ export default function Home() {
         href="/thankful"
         className="block rounded-2xl border border-line bg-surface px-5 py-4 text-center font-semibold tracking-wide text-mist transition active:bg-line"
       >
-        I AM THANKFUL FOR
+        GRATITUDE
       </Link>
       <Link
         href="/support"
@@ -50,7 +53,7 @@ export default function Home() {
         href="/decision"
         className="block rounded-2xl border border-line bg-surface px-5 py-4 text-center font-semibold tracking-wide text-mist transition active:bg-line"
       >
-        BIG DECISION MODE
+        BIG DECISIONS
       </Link>
 
       <div className="mt-8 space-y-0.5 text-center text-xs leading-relaxed text-fog">

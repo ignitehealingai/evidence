@@ -6,10 +6,10 @@ import { useEntries, useSessions } from "@/lib/storage";
 import {
   EVENT_KINDS,
   WINDOW_OPTIONS,
+  actionEffects,
   beforeCaving,
   cravingsByDayOfWeek,
   cravingsByTimeOfDay,
-  interventionEffects,
   sequenceReport,
   urgeCounts,
   winsAfterEachPath,
@@ -40,7 +40,7 @@ export default function Reports() {
   }, [first, second, window, entries, sessions]);
 
   const effects = useMemo(
-    () => interventionEffects(profile, sessions),
+    () => actionEffects(profile, sessions),
     [profile, sessions]
   );
   const byTime = useMemo(() => cravingsByTimeOfDay(sessions), [sessions]);
@@ -118,22 +118,23 @@ export default function Reports() {
         </div>
       )}
 
-      <SectionLabel>What seems to work</SectionLabel>
+      <SectionLabel>My most helpful actions</SectionLabel>
       {effects.length === 0 ? (
         <p className="text-sm text-fog">
-          Once you&rsquo;ve completed a few check-ins, this will show which
-          interventions most often ended with the craving passing or easing.
+          Once you&rsquo;ve tried a few things during check-ins, this will
+          show your top 10 — the specific actions after which the craving
+          most often passed or eased.
         </p>
       ) : (
         <div className="space-y-2">
           {effects.map((e) => (
             <div
-              key={e.categoryId}
+              key={e.interventionId}
               className="rounded-2xl border border-line bg-surface px-4 py-3"
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-mist">
-                  {e.categoryName}
+                  {e.label}
                 </span>
                 <span className="text-sm font-semibold tabular-nums text-glow">
                   {Math.round((e.helped / e.total) * 100)}%
@@ -151,8 +152,7 @@ export default function Reports() {
       {paths.rodeItOut.total + paths.acted.total === 0 ? (
         <p className="text-sm text-fog">
           Once you&rsquo;ve completed some check-ins, this will show how often
-          a win or gratitude followed each kind — riding it out, and acting
-          on it.
+          a win followed each kind — riding it out, and acting on it.
         </p>
       ) : (
         <>
@@ -255,7 +255,7 @@ function PathCard({
       <p className="mt-1 text-xs text-fog">
         {total === 0
           ? "no check-ins like this yet"
-          : `a win or gratitude followed within ${
+          : `a win followed within ${
               windowHours === 24 ? "a day" : `${windowHours}h`
             } after ${followed} of ${total} ${
               total === 1 ? "check-in" : "check-ins"

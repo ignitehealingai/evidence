@@ -2,18 +2,34 @@
 
 import { useState } from "react";
 import { getProfile } from "@/config";
-import { addEntry } from "@/lib/storage";
+import {
+  addEntry,
+  clearWinDraft,
+  saveWinDraft,
+  useWinDraft,
+} from "@/lib/storage";
 import { Button, ChipGrid, Screen, SectionLabel } from "@/components/ui";
 
 export default function LogWin() {
   const profile = getProfile();
-  const [text, setText] = useState("");
-  const [category, setCategory] = useState("other");
+  // Draft persists as you type, so a half-written win survives closing the app.
+  const draft = useWinDraft();
+  const text = draft?.text ?? "";
+  const category = draft?.category ?? "other";
   const [saved, setSaved] = useState(false);
+
+  function setText(next: string) {
+    saveWinDraft({ text: next, category });
+  }
+
+  function setCategory(next: string) {
+    saveWinDraft({ text, category: next });
+  }
 
   function save() {
     if (!text.trim()) return;
     addEntry({ text: text.trim(), category, source: "win" });
+    clearWinDraft();
     setSaved(true);
   }
 
@@ -27,8 +43,7 @@ export default function LogWin() {
             <Button
               variant="soft"
               onClick={() => {
-                setText("");
-                setCategory("other");
+                clearWinDraft();
                 setSaved(false);
               }}
             >

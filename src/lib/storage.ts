@@ -7,13 +7,20 @@
 // components re-render when something is logged, without setState-in-effect.
 
 import { useSyncExternalStore } from "react";
-import type { DecisionEntry, EvidenceEntry, IntensitySession } from "./types";
+import type {
+  CheckInDraft,
+  DecisionEntry,
+  EvidenceEntry,
+  IntensitySession,
+} from "./types";
 
 const KEYS = {
   entries: "evidence.entries.v1",
   sessions: "evidence.sessions.v1",
   decisions: "evidence.decisions.v1",
   contacts: "evidence.contacts.v1",
+  draft: "evidence.draft.v1",
+  winDraft: "evidence.windraft.v1",
 } as const;
 
 export function newId(): string {
@@ -193,6 +200,82 @@ export function useContactPhones(): ContactPhones {
   return useSyncExternalStore(subscribe, getContactPhones, () => EMPTY_PHONES);
 }
 
+// In-progress check-in draft ---------------------------------------------------
+// Saved after every tap so closing the app mid-check-in loses nothing.
+
+let draftCache: CheckInDraft | null | undefined;
+
+function readObject<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeObject<T>(key: string, value: T | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (value === null) window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Non-fatal.
+  }
+}
+
+export function getDraft(): CheckInDraft | null {
+  if (draftCache === undefined) draftCache = readObject<CheckInDraft>(KEYS.draft);
+  return draftCache;
+}
+
+export function saveDraft(draft: CheckInDraft): void {
+  draftCache = draft;
+  writeObject(KEYS.draft, draft);
+  emitChange();
+}
+
+export function clearDraft(): void {
+  draftCache = null;
+  writeObject(KEYS.draft, null);
+  emitChange();
+}
+
+export function useDraft(): CheckInDraft | null {
+  return useSyncExternalStore(subscribe, getDraft, () => null);
+}
+
+// Log-a-Win draft --------------------------------------------------------------
+// A typed-but-unsaved win survives closing the app.
+
+export type WinDraft = { text: string; category: string };
+
+let winDraftCache: WinDraft | null | undefined;
+
+export function getWinDraft(): WinDraft | null {
+  if (winDraftCache === undefined) {
+    winDraftCache = readObject<WinDraft>(KEYS.winDraft);
+  }
+  return winDraftCache;
+}
+
+export function saveWinDraft(draft: WinDraft): void {
+  winDraftCache = draft;
+  writeObject(KEYS.winDraft, draft);
+  emitChange();
+}
+
+export function clearWinDraft(): void {
+  winDraftCache = null;
+  writeObject(KEYS.winDraft, null);
+  emitChange();
+}
+
+export function useWinDraft(): WinDraft | null {
+  return useSyncExternalStore(subscribe, getWinDraft, () => null);
+}
+
 // Reset ------------------------------------------------------------------------
 
 /**
@@ -203,11 +286,15 @@ export function clearAllData(): void {
   entriesCache = [];
   sessionsCache = [];
   decisionsCache = [];
+  draftCache = null;
+  winDraftCache = null;
   if (typeof window !== "undefined") {
     try {
       window.localStorage.removeItem(KEYS.entries);
       window.localStorage.removeItem(KEYS.sessions);
       window.localStorage.removeItem(KEYS.decisions);
+      window.localStorage.removeItem(KEYS.draft);
+      window.localStorage.removeItem(KEYS.winDraft);
     } catch {
       // Non-fatal.
     }

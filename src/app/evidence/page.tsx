@@ -20,6 +20,7 @@ export default function EvidenceDashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [editCategory, setEditCategory] = useState("other");
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
 
   function saveEdit() {
     if (!editingId || !editText.trim()) return;
@@ -62,16 +63,47 @@ export default function EvidenceDashboard() {
           {stats.counts.length > 0 && (
             <>
               <SectionLabel>By category</SectionLabel>
+              <p className="mb-2 text-xs text-fog">
+                Tap a category to see the entries behind the number.
+              </p>
               <div className="space-y-2">
                 {stats.counts.map((c) => (
                   <div
                     key={c.id}
-                    className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3"
+                    className="rounded-2xl border border-line bg-surface"
                   >
-                    <span className="text-sm text-mist">{c.label}</span>
-                    <span className="text-base font-semibold tabular-nums text-glow">
-                      {c.count}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenCategory(openCategory === c.id ? null : c.id)
+                      }
+                      className="flex w-full items-center justify-between px-4 py-3"
+                    >
+                      <span className="text-sm text-mist">{c.label}</span>
+                      <span className="text-base font-semibold tabular-nums text-glow">
+                        {c.count}
+                      </span>
+                    </button>
+                    {openCategory === c.id && (
+                      <ul className="space-y-2 border-t border-line px-4 py-3">
+                        {entries
+                          .filter((e) => e.category === c.id)
+                          .map((e) => (
+                            <li key={e.id} className="text-sm text-mist">
+                              {e.text}
+                              <span className="ml-2 text-xs text-fog">
+                                {formatDate(e.createdAt)}
+                              </span>
+                            </li>
+                          ))}
+                        {entries.filter((e) => e.category === c.id).length ===
+                          0 && (
+                          <li className="text-xs text-fog">
+                            No written entries in this category yet.
+                          </li>
+                        )}
+                      </ul>
+                    )}
                   </div>
                 ))}
               </div>

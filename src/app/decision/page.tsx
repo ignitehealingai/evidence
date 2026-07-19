@@ -48,7 +48,7 @@ export default function BigDecisionMode() {
 
   return (
     <Screen
-      title="Big Decision Mode"
+      title="Big Decisions"
       back={step === "what" ? "/" : null}
       onBack={
         step === "decided" || step === "process" ? goBack : undefined

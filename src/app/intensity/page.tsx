@@ -1,23 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { getProfile } from "@/config";
-import type { InterventionCategory } from "@/config/types";
-import { recommendCategories } from "@/lib/engine";
-import { addEntry, addSession, nowIso } from "@/lib/storage";
+import type { Profile } from "@/config/types";
+import type { CheckInDraft } from "@/lib/types";
+import {
+  addEntry,
+  addSession,
+  clearDraft,
+  nowIso,
+  saveDraft,
+  useDraft,
+} from "@/lib/storage";
 import { Button, ChipGrid, Screen, SectionLabel, StepDots } from "@/components/ui";
 
-type Step =
-  | "feelings"
-  | "context"
-  | "body"
-  | "urge"
-  | "pause"
-  | "try"
-  | "reflect"
-  | "done";
-
-const STEP_ORDER: Step[] = [
+const STEP_ORDER: CheckInDraft["step"][] = [
   "urge",
   "body",
   "feelings",
@@ -25,94 +22,62 @@ const STEP_ORDER: Step[] = [
   "pause",
   "try",
   "reflect",
-  "done",
 ];
+
+const EMPTY_DRAFT: CheckInDraft = {
+  step: "urge",
+  startedAt: "",
+  urges: [],
+  body: [],
+  feelings: [],
+  dysregulators: [],
+  interventionId: null,
+  outcomes: [],
+  selectedExamples: [],
+  evidenceText: "",
+  evidenceCategory: "other",
+};
 
 const TIMER_SECONDS = 10 * 60;
 
 export default function IntensityFlow() {
   const profile = getProfile();
+  const stored = useDraft();
+  const [finished, setFinished] = useState(false);
 
-  const [step, setStep] = useState<Step>("urge");
-  const [startedAt] = useState(() => nowIso());
+  const d = stored ?? EMPTY_DRAFT;
+  const step = finished ? "done" : d.step;
 
-  const [feelings, setFeelings] = useState<string[]>([]);
-  const [context, setContext] = useState<string[]>([]);
-  const [body, setBody] = useState<string[]>([]);
-  const [urge, setUrge] = useState<string[]>([]);
+  // Every change persists immediately — closing the app loses nothing.
+  function update(patch: Partial<CheckInDraft>) {
+    saveDraft({ ...d, startedAt: d.startedAt || nowIso(), ...patch });
+  }
 
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [interventionId, setInterventionId] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
-
-  const [outcomes, setOutcomes] = useState<string[]>([]);
-  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
-  const [evidenceText, setEvidenceText] = useState("");
-  const [evidenceCategory, setEvidenceCategory] = useState("other");
-
-  const allTags = useMemo(
-    () => [...feelings, ...context, ...body, ...urge],
-    [feelings, context, body, urge]
-  );
-
-  const recommendations = useMemo(
-    () => recommendCategories(profile, allTags),
-    [profile, allTags]
-  );
-
-  const category: InterventionCategory | undefined =
-    profile.interventionCategories.find((c) => c.id === categoryId);
-
-  // Countdown for "try one thing for 10 minutes".
   useEffect(() => {
     if (secondsLeft === null || secondsLeft <= 0) return;
     const t = setTimeout(() => setSecondsLeft((s) => (s ?? 1) - 1), 1000);
     return () => clearTimeout(t);
   }, [secondsLeft]);
 
-  function chooseCategory(id: string) {
-    setCategoryId(id);
-    setInterventionId(null);
-    setSecondsLeft(null);
-    setStep("try");
-  }
-
   function goBack() {
-    switch (step) {
-      case "body":
-        setStep("urge");
-        break;
-      case "feelings":
-        setStep("body");
-        break;
-      case "context":
-        setStep("feelings");
-        break;
-      case "pause":
-        setStep("context");
-        break;
-      case "try":
-        setStep("pause");
-        break;
-      case "reflect":
-        setStep(categoryId ? "try" : "pause");
-        break;
-    }
+    const i = STEP_ORDER.indexOf(d.step);
+    if (i > 0) update({ step: STEP_ORDER[i - 1] });
   }
 
   function finish() {
     addSession({
-      startedAt,
+      startedAt: d.startedAt || nowIso(),
       completedAt: nowIso(),
-      feelings,
-      dysregulators: context,
-      body,
-      urge: urge[0],
-      categoryId: categoryId ?? undefined,
-      interventionId: interventionId ?? undefined,
-      outcomes,
+      feelings: d.feelings,
+      dysregulators: d.dysregulators,
+      body: d.body,
+      urges: d.urges,
+      urge: d.urges[0],
+      interventionId: d.interventionId ?? undefined,
+      outcomes: d.outcomes,
     });
-    for (const text of selectedExamples) {
+    for (const text of d.selectedExamples) {
       const example = profile.evidenceExamples.find((e) => e.text === text);
       addEntry({
         text,
@@ -120,22 +85,26 @@ export default function IntensityFlow() {
         source: "reflection",
       });
     }
-    if (evidenceText.trim()) {
+    if (d.evidenceText.trim()) {
       addEntry({
-        text: evidenceText.trim(),
-        category: evidenceCategory,
+        text: d.evidenceText.trim(),
+        category: d.evidenceCategory,
         source: "reflection",
       });
     }
-    setStep("done");
+    clearDraft();
+    setFinished(true);
   }
 
-  const stepIndex = STEP_ORDER.indexOf(step);
+  const stepIndex = STEP_ORDER.indexOf(d.step);
+  const urgeReminder = d.urges
+    .map((u) => profile.urgeReminders?.[u])
+    .find(Boolean);
 
   return (
     <Screen
       title={step === "done" ? undefined : "I need intensity"}
-      back={step === "urge" ? "/" : null}
+      back={step === "urge" || step === "done" ? "/" : null}
       onBack={step !== "urge" && step !== "done" ? goBack : undefined}
     >
       {step !== "done" && <StepDots step={stepIndex + 1} total={7} />}
@@ -143,14 +112,14 @@ export default function IntensityFlow() {
       {step === "urge" && (
         <SelectStep
           title="What do you want to do right now?"
-          subtitle="Select one. Naming it is not doing it."
-          onNext={() => setStep("body")}
+          subtitle="Pick up to three. Naming it is not doing it."
+          onNext={() => update({ step: "body" })}
         >
           <ChipGrid
             options={profile.urges}
-            selected={urge}
-            onChange={setUrge}
-            single
+            selected={d.urges}
+            onChange={(ids) => update({ urges: ids })}
+            maxSelected={3}
           />
         </SelectStep>
       )}
@@ -159,12 +128,12 @@ export default function IntensityFlow() {
         <SelectStep
           title="What is happening in your body?"
           subtitle="Select all that apply."
-          onNext={() => setStep("feelings")}
+          onNext={() => update({ step: "feelings" })}
         >
           <ChipGrid
             options={profile.bodySensations}
-            selected={body}
-            onChange={setBody}
+            selected={d.body}
+            onChange={(ids) => update({ body: ids })}
           />
         </SelectStep>
       )}
@@ -173,12 +142,12 @@ export default function IntensityFlow() {
         <SelectStep
           title="How are you feeling?"
           subtitle="Select all that apply. There are no wrong answers."
-          onNext={() => setStep("context")}
+          onNext={() => update({ step: "context" })}
         >
           <ChipGrid
             options={profile.feelings}
-            selected={feelings}
-            onChange={setFeelings}
+            selected={d.feelings}
+            onChange={(ids) => update({ feelings: ids })}
           />
         </SelectStep>
       )}
@@ -187,15 +156,15 @@ export default function IntensityFlow() {
         <SelectStep
           title="What else is going on?"
           subtitle="This is pattern recognition, not analysis."
-          onNext={() => setStep("pause")}
+          onNext={() => update({ step: "pause" })}
         >
           {profile.dysregulatorGroups.map((group) => (
             <div key={group.id}>
               <SectionLabel>{group.label}</SectionLabel>
               <ChipGrid
                 options={group.options}
-                selected={context}
-                onChange={setContext}
+                selected={d.dysregulators}
+                onChange={(ids) => update({ dysregulators: ids })}
               />
             </div>
           ))}
@@ -211,100 +180,57 @@ export default function IntensityFlow() {
               </p>
             ))}
           </div>
-          {urge[0] && profile.urgeReminders?.[urge[0]] && (
+          {urgeReminder && (
             <div className="mb-6 rounded-2xl border border-calm/40 bg-calm/10 px-4 py-4 text-center">
               <p className="text-sm leading-relaxed text-calm">
-                {profile.urgeReminders[urge[0]]}
+                {urgeReminder}
               </p>
             </div>
           )}
-          {recommendations.length > 0 && (
-            <button
-              type="button"
-              onClick={() => chooseCategory(recommendations[0].category.id)}
-              className="block w-full rounded-3xl bg-calm px-6 py-8 text-center shadow-xl shadow-calm/20 transition active:scale-[0.99]"
-            >
-              <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-night/70">
-                Start here
-              </span>
-              <span className="mt-2 block text-2xl font-bold text-night">
-                {recommendations[0].category.name}
-              </span>
-              <span className="mt-1 block text-sm text-night/70">
-                for when you&rsquo;re{" "}
-                {recommendations[0].category.useWhen.slice(0, 3).join(", ")}
-              </span>
-            </button>
-          )}
-          <details className="mt-5">
-            <summary className="cursor-pointer text-center text-sm text-fog">
-              Show all categories
-            </summary>
-            <div className="mt-3 space-y-2">
-              {profile.interventionCategories
-                .filter((c) => c.id !== recommendations[0]?.category.id)
-                .map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => chooseCategory(c.id)}
-                    className="block w-full rounded-2xl border border-line bg-surface px-5 py-3 text-left transition active:bg-line"
-                  >
-                    <span className="block text-sm font-medium text-mist">
-                      {c.name}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-fog">
-                      for when you&rsquo;re {c.useWhen.slice(0, 3).join(", ")}
-                    </span>
-                  </button>
-                ))}
-            </div>
-          </details>
+          <button
+            type="button"
+            onClick={() => update({ step: "try" })}
+            className="block w-full rounded-3xl bg-calm px-6 py-8 text-center shadow-xl shadow-calm/20 transition active:scale-[0.99]"
+          >
+            <span className="block text-2xl font-bold text-night">
+              TRY THIS
+            </span>
+            <span className="mt-1 block text-sm text-night/70">
+              one small thing, 10 minutes
+            </span>
+          </button>
           <div className="mt-6">
-            <Button variant="ghost" onClick={() => setStep("reflect")}>
+            <Button variant="ghost" onClick={() => update({ step: "reflect" })}>
               Skip straight to reflection
             </Button>
           </div>
         </div>
       )}
 
-      {step === "try" && category && (
+      {step === "try" && (
         <div className="flex flex-1 flex-col">
-          <h2 className="text-2xl font-semibold text-mist">{category.name}</h2>
-          {category.prompt && (
-            <p className="mt-3 rounded-2xl border border-glow/40 bg-glow/10 px-4 py-3 text-sm text-glow">
-              {category.prompt}
-            </p>
-          )}
-          <SectionLabel>Try one thing</SectionLabel>
-          <p className="mb-2 text-xs text-fog">
+          <h2 className="text-2xl font-semibold text-mist">Try one thing</h2>
+          <p className="mt-1 text-sm text-fog">
             You can do anything for 10 minutes.
           </p>
-          <ChipGrid
-            options={category.interventions}
-            selected={interventionId ? [interventionId] : []}
-            onChange={(ids) => setInterventionId(ids[0] ?? null)}
-            single
-          />
-          {category.ask && category.ask.length > 0 && (
-            <>
-              <SectionLabel>Ask yourself</SectionLabel>
-              <ul className="space-y-1.5 text-sm text-mist">
-                {category.ask.map((q) => (
-                  <li key={q}>{q}</li>
-                ))}
-              </ul>
-            </>
-          )}
-          {category.reminder && (
-            <p className="mt-4 text-center text-sm font-medium text-calm">
-              {category.reminder}
-            </p>
-          )}
+          {profile.interventionGroups.map((group) => (
+            <div key={group.id}>
+              <SectionLabel>{group.label}</SectionLabel>
+              <ChipGrid
+                options={group.interventions}
+                selected={d.interventionId ? [d.interventionId] : []}
+                onChange={(ids) => update({ interventionId: ids[0] ?? null })}
+                single
+              />
+            </div>
+          ))}
 
           <div className="mt-6 space-y-3">
             {secondsLeft === null ? (
-              <Button variant="soft" onClick={() => setSecondsLeft(TIMER_SECONDS)}>
+              <Button
+                variant="soft"
+                onClick={() => setSecondsLeft(TIMER_SECONDS)}
+              >
                 Start a 10-minute timer
               </Button>
             ) : (
@@ -319,12 +245,13 @@ export default function IntensityFlow() {
                 </p>
               </div>
             )}
-            <Button onClick={() => setStep("reflect")}>
+            <Button onClick={() => update({ step: "reflect" })}>
               I tried it — reflect
             </Button>
-            <Button variant="ghost" onClick={() => setStep("pause")}>
-              Pick a different category
-            </Button>
+            <p className="text-center text-xs text-fog">
+              Everything is saved. If you close the app, you can finish the
+              reflection later.
+            </p>
           </div>
         </div>
       )}
@@ -336,7 +263,7 @@ export default function IntensityFlow() {
             <p className="mt-2">
               I give myself permission to feel{" "}
               <span className="font-medium text-calm">
-                {feelingLabels(profile, feelings)}
+                {feelingLabels(profile, d.feelings)}
               </span>{" "}
               — without acting on it.
             </p>
@@ -350,11 +277,11 @@ export default function IntensityFlow() {
           <div className="mt-4">
             <ChipGrid
               options={profile.reflectionOutcomes}
-              selected={outcomes}
-              onChange={setOutcomes}
+              selected={d.outcomes}
+              onChange={(ids) => update({ outcomes: ids })}
             />
           </div>
-          {outcomes.includes("acted-on-it") && (
+          {d.outcomes.includes("acted-on-it") && (
             <div className="mt-4 rounded-2xl border border-glow/40 bg-glow/10 px-4 py-4">
               <p className="text-base font-semibold text-glow">
                 {profile.actedOnIt.title}
@@ -367,26 +294,24 @@ export default function IntensityFlow() {
             </div>
           )}
 
-          <SectionLabel>
-            Evidence that I&rsquo;m changing
-          </SectionLabel>
+          <SectionLabel>Evidence that I&rsquo;m changing</SectionLabel>
           <p className="mb-2 text-xs text-fog">
             Tap everything that&rsquo;s true. More than one counts.
           </p>
           <div className="flex flex-wrap gap-2">
             {profile.evidenceExamples.map((example) => {
-              const on = selectedExamples.includes(example.text);
+              const on = d.selectedExamples.includes(example.text);
               return (
                 <button
                   key={example.text}
                   type="button"
                   aria-pressed={on}
                   onClick={() =>
-                    setSelectedExamples((prev) =>
-                      on
-                        ? prev.filter((t) => t !== example.text)
-                        : [...prev, example.text]
-                    )
+                    update({
+                      selectedExamples: on
+                        ? d.selectedExamples.filter((t) => t !== example.text)
+                        : [...d.selectedExamples, example.text],
+                    })
                   }
                   className={`rounded-full border px-3 py-1.5 text-xs transition ${
                     on
@@ -402,14 +327,14 @@ export default function IntensityFlow() {
 
           <SectionLabel>Add your own (optional)</SectionLabel>
           <textarea
-            value={evidenceText}
-            onChange={(e) => setEvidenceText(e.target.value)}
+            value={d.evidenceText}
+            onChange={(e) => update({ evidenceText: e.target.value })}
             placeholder="What else did you do differently?"
             rows={2}
             className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-mist placeholder:text-fog/60 focus:border-glow focus:outline-none"
           />
 
-          {evidenceText.trim() && (
+          {d.evidenceText.trim() && (
             <>
               <SectionLabel>Count it as</SectionLabel>
               <ChipGrid
@@ -417,8 +342,10 @@ export default function IntensityFlow() {
                   id: c.id,
                   label: c.label,
                 }))}
-                selected={[evidenceCategory]}
-                onChange={(ids) => setEvidenceCategory(ids[0] ?? "other")}
+                selected={[d.evidenceCategory]}
+                onChange={(ids) =>
+                  update({ evidenceCategory: ids[0] ?? "other" })
+                }
                 single
               />
             </>
@@ -471,10 +398,7 @@ function SelectStep({
   );
 }
 
-function feelingLabels(
-  profile: ReturnType<typeof getProfile>,
-  selected: string[]
-): string {
+function feelingLabels(profile: Profile, selected: string[]): string {
   const labels = selected
     .filter((id) => id !== "dont-know")
     .map((id) => profile.feelings.find((f) => f.id === id)?.label)

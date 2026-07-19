@@ -1,7 +1,7 @@
 // Report computations over locally stored entries and sessions.
 
 import type { Profile } from "@/config/types";
-import { optionLabel } from "@/config";
+import { interventionLabel, optionLabel } from "@/config";
 import type { EvidenceEntry, IntensitySession } from "./types";
 
 export type EventKindId =
@@ -118,9 +118,9 @@ export function sequenceReport(
   return { firstCount: firstTimes.length, followedCount, medianGapMinutes };
 }
 
-export type InterventionEffect = {
-  categoryId: string;
-  categoryName: string;
+export type ActionEffect = {
+  interventionId: string;
+  label: string;
   total: number;
   helped: number;
 };
@@ -128,17 +128,19 @@ export type InterventionEffect = {
 const HELPED_OUTCOMES = new Set(["craving-passed", "craving-decreased"]);
 
 /**
- * For each intervention category that was actually tried, how often the
- * reflection said the craving passed or decreased afterwards.
+ * For each specific action that was actually tried, how often the
+ * reflection said the craving passed or decreased afterwards. Top N by
+ * helpfulness — the user's personal "most helpful intervening actions".
  */
-export function interventionEffects(
+export function actionEffects(
   profile: Profile,
-  sessions: IntensitySession[]
-): InterventionEffect[] {
-  const byCategory = new Map<string, { total: number; helped: number }>();
+  sessions: IntensitySession[],
+  limit = 10
+): ActionEffect[] {
+  const byAction = new Map<string, { total: number; helped: number }>();
   for (const session of sessions) {
-    if (!session.categoryId) continue;
-    const bucket = byCategory.get(session.categoryId) ?? {
+    if (!session.interventionId) continue;
+    const bucket = byAction.get(session.interventionId) ?? {
       total: 0,
       helped: 0,
     };
@@ -146,21 +148,20 @@ export function interventionEffects(
     if (session.outcomes.some((o) => HELPED_OUTCOMES.has(o))) {
       bucket.helped += 1;
     }
-    byCategory.set(session.categoryId, bucket);
+    byAction.set(session.interventionId, bucket);
   }
 
-  return [...byCategory.entries()]
-    .map(([categoryId, { total, helped }]) => ({
-      categoryId,
-      categoryName:
-        profile.interventionCategories.find((c) => c.id === categoryId)
-          ?.name ?? categoryId,
+  return [...byAction.entries()]
+    .map(([interventionId, { total, helped }]) => ({
+      interventionId,
+      label: interventionLabel(profile, interventionId),
       total,
       helped,
     }))
     .sort(
       (a, b) => b.helped / b.total - a.helped / a.total || b.total - a.total
-    );
+    )
+    .slice(0, limit);
 }
 
 export type CountRow = { label: string; count: number };
@@ -259,10 +260,10 @@ export function winsAfterEachPath(
   sessions: IntensitySession[],
   windowHours = 24
 ): PathComparison {
-  // Deliberate wins only (Log a Win / gratitudes), not the reflection chips
-  // saved moments after the check-in itself — those would blur the signal.
+  // Deliberate wins only (Log a Win), not gratitudes and not the reflection
+  // chips saved moments after the check-in itself — those blur the signal.
   const winTimes = entries
-    .filter((e) => e.source === "win" || e.source === "gratitude")
+    .filter((e) => e.source === "win")
     .map((e) => new Date(e.createdAt).getTime())
     .filter((t) => Number.isFinite(t))
     .sort((a, b) => a - b);
@@ -296,8 +297,10 @@ export function urgeCounts(
 ): CountRow[] {
   const counts = new Map<string, number>();
   for (const session of sessions) {
-    if (!session.urge) continue;
-    counts.set(session.urge, (counts.get(session.urge) ?? 0) + 1);
+    const urges = session.urges ?? (session.urge ? [session.urge] : []);
+    for (const urge of urges) {
+      counts.set(urge, (counts.get(urge) ?? 0) + 1);
+    }
   }
   return [...counts.entries()]
     .sort((a, b) => b[1] - a[1])

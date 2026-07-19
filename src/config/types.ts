@@ -21,23 +21,11 @@ export type Intervention = {
   label: string;
 };
 
-export type InterventionCategory = {
+/** A group of suggested actions, e.g. quick ones vs. ones needing more time. */
+export type InterventionGroup = {
   id: string;
-  name: string;
-  /** Short "use when" summary shown on the category card. */
-  useWhen: string[];
-  /**
-   * Option ids (from feelings, dysregulators, body sensations, and urges)
-   * that make this category a good match. Used by the regulation engine.
-   */
-  matchTags: string[];
+  label: string;
   interventions: Intervention[];
-  /** Optional fill-in prompt shown above the interventions (e.g. Permission). */
-  prompt?: string;
-  /** Optional questions to sit with during or after the intervention. */
-  ask?: string[];
-  /** Optional closing reminder (e.g. "Arousal is allowed."). */
-  reminder?: string;
 };
 
 export type EvidenceCategory = {
@@ -80,24 +68,23 @@ export type Profile = {
   appName: string;
   tagline: string;
   corePromise: string[];
-  /** Step 2: What is happening right now? */
-  feelings: Option[];
-  /** Step 3: What else is going on? (dysregulators) */
-  dysregulatorGroups: OptionGroup[];
-  /** Step 4: What is happening in your body? */
-  bodySensations: Option[];
-  /** Step 5: What do you want to do right now? */
+  /** Check-in screen 1: What do you want to do right now? (up to three) */
   urges: Option[];
   /**
    * Optional reminder shown on the pause screen when a specific urge was
    * selected (urge id -> line).
    */
   urgeReminders?: Record<string, string>;
-  /** Shown between the check-in and the intervention. */
+  /** Check-in screen 2: What is happening in your body? */
+  bodySensations: Option[];
+  /** Check-in screen 3: How are you feeling? */
+  feelings: Option[];
+  /** Check-in screen 4: What else is going on? (dysregulators) */
+  dysregulatorGroups: OptionGroup[];
+  /** Shown between the check-in and the suggestions. */
   pauseMessage: string[];
-  interventionCategories: InterventionCategory[];
-  /** Category ids to suggest when nothing matches. */
-  fallbackCategoryIds: string[];
+  /** Suggested actions, grouped by how much time they take. */
+  interventionGroups: InterventionGroup[];
   reflectionOutcomes: Option[];
   /** Shown on the reflection screen when "I acted on it" is selected. */
   actedOnIt: {

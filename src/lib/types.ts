@@ -24,12 +24,33 @@ export type IntensitySession = {
   feelings: string[];
   dysregulators: string[];
   body: string[];
+  /** Selected urges (up to three). `urge` kept for entries from old versions. */
+  urges?: string[];
   urge?: string;
-  /** Intervention category and intervention the user chose, if any. */
+  /** Legacy field from the category era. */
   categoryId?: string;
+  /** The suggested action the user chose, if any. */
   interventionId?: string;
   /** Reflection outcome ids. */
   outcomes: string[];
+};
+
+/**
+ * An in-progress check-in, persisted after every tap so nothing is lost if
+ * the app is closed mid-flow. Restored automatically on next open.
+ */
+export type CheckInDraft = {
+  step: "urge" | "body" | "feelings" | "context" | "pause" | "try" | "reflect";
+  startedAt: string;
+  urges: string[];
+  body: string[];
+  feelings: string[];
+  dysregulators: string[];
+  interventionId: string | null;
+  outcomes: string[];
+  selectedExamples: string[];
+  evidenceText: string;
+  evidenceCategory: string;
 };
 
 export type DecisionEntry = {

@@ -53,21 +53,22 @@ export function ChipGrid({
   selected,
   onChange,
   single = false,
+  maxSelected,
 }: {
   options: Option[];
   selected: string[];
   onChange: (ids: string[]) => void;
   single?: boolean;
+  /** Optional cap on how many can be selected at once. */
+  maxSelected?: number;
 }) {
   function toggle(id: string) {
     if (single) {
       onChange(selected.includes(id) ? [] : [id]);
-    } else {
-      onChange(
-        selected.includes(id)
-          ? selected.filter((s) => s !== id)
-          : [...selected, id]
-      );
+    } else if (selected.includes(id)) {
+      onChange(selected.filter((s) => s !== id));
+    } else if (maxSelected === undefined || selected.length < maxSelected) {
+      onChange([...selected, id]);
     }
   }
 

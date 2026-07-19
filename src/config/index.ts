@@ -31,3 +31,12 @@ export function optionLabel(profile: Profile, id: string): string {
 export function evidenceCategoryLabel(profile: Profile, id: string): string {
   return profile.evidenceCategories.find((c) => c.id === id)?.label ?? id;
 }
+
+/** Looks up the display label for an intervention (suggested action) id. */
+export function interventionLabel(profile: Profile, id: string): string {
+  for (const group of profile.interventionGroups) {
+    const match = group.interventions.find((i) => i.id === id);
+    if (match) return match.label;
+  }
+  return id;
+}
