@@ -17,6 +17,8 @@ export default function LogWin() {
   const text = draft?.text ?? "";
   const category = draft?.category ?? "other";
   const [saved, setSaved] = useState(false);
+  // Wins can be backdated ("it happened yesterday, I just didn't log it").
+  const [date, setDate] = useState("");
 
   function setText(next: string) {
     saveWinDraft({ text: next, category });
@@ -28,7 +30,12 @@ export default function LogWin() {
 
   function save() {
     if (!text.trim()) return;
-    addEntry({ text: text.trim(), category, source: "win" });
+    addEntry({
+      text: text.trim(),
+      category,
+      source: "win",
+      createdAt: isoForDate(date),
+    });
     clearWinDraft();
     setSaved(true);
   }
@@ -98,6 +105,15 @@ export default function LogWin() {
         single
       />
 
+      <SectionLabel>When did it happen?</SectionLabel>
+      <input
+        type="date"
+        value={date || todayString()}
+        max={todayString()}
+        onChange={(e) => setDate(e.target.value)}
+        className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-mist focus:border-glow focus:outline-none [color-scheme:dark]"
+      />
+
       <div className="mt-8">
         <Button onClick={save} disabled={!text.trim()}>
           Save evidence
@@ -105,4 +121,21 @@ export default function LogWin() {
       </div>
     </Screen>
   );
+}
+
+function todayString(): string {
+  const d = new Date();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+/**
+ * Today (or blank) keeps the exact current time; a past date is stamped at
+ * noon local time so it sorts sensibly within that day.
+ */
+function isoForDate(date: string): string | undefined {
+  if (!date || date === todayString()) return undefined;
+  const stamped = new Date(`${date}T12:00:00`);
+  return Number.isNaN(stamped.getTime()) ? undefined : stamped.toISOString();
 }

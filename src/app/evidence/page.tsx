@@ -14,8 +14,14 @@ import { Button, ChipGrid, Screen, SectionLabel } from "@/components/ui";
 
 export default function EvidenceDashboard() {
   const profile = getProfile();
-  const entries = useEntries();
+  const rawEntries = useEntries();
   const sessions = useSessions();
+  // Sort by date so backdated wins appear on the day they happened.
+  const entries = useMemo(
+    () =>
+      [...rawEntries].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [rawEntries]
+  );
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");

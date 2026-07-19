@@ -1,4 +1,4 @@
-# Evidence — What the App Does (Plain-Language Requirements, v3)
+# Evidence — What the App Does (Plain-Language Requirements, v4)
 
 This document describes everything in the app in plain English.
 **To request changes: edit anything below — cross things out, rewrite wording,
@@ -36,15 +36,12 @@ nothing; it resumes exactly where you left off.
 
 ### Screen 1 — What do you want to do right now? (pick up to three)
 
-get high · spend money · sleep · experience sexual intensity · masturbate ·
-flirt · cuddle · have sex · text someone · write with ai ·
-give in on a boundary · disappear · quit something · build something ·
-don't know
+get high · spend money · sleep · orgasm · flirt · human touch ·
+text someone · write · give in on a boundary · disappear · don't know
 
 ### Screen 2 — What is happening in your body? (pick any)
 
-adrenaline pumping · full of energy · nervous stomach cramps · I feel like
-I'm going to throw up · buzzing · numb · empty · obsessive thinking /
+adrenaline pumping · stomach pain · throw up · buzzing · numb · empty · obsessive thinking /
 ruminating · eye twitching · tight chest · racing thoughts · can't sit
 still · exhausted · pressure in body · knot in stomach · heavy body ·
 don't know
@@ -54,8 +51,7 @@ don't know
 bored · lonely · overwhelmed · angry · aroused · sad · grief · stuck ·
 excited · activated · ashamed · anxious · rejected · disappointed ·
 I worked hard — I deserve to take it easy · I want to feel good ·
-I want to escape · urge to fix something · urge to make a big decision ·
-urge to use · don't know
+I want to escape · urge to fix something · urge to use · don't know
 
 ### Screen 4 — What else is going on? (pick any)
 
@@ -87,18 +83,17 @@ Then ONE big green **TRY THIS** button.
 
 Organized by time, not by feeling. One flat list — pick anything.
 
-**Quick — even while working:** sing one song · dance to one song · turn on
-loud music · hold ice · sour candy · spicy food · suck on a lollipop ·
-drink sparkling water · drink through a straw · chew gum · walk Sunny ·
-take 3 deep breaths · go outside · snuggle with Sunny · meditate for 3
-min · prayer · write morning pages · text a friend · list 3 gratitudes ·
-text my coach · look at photos from this day last year · review evidence ·
-compare today to six months ago · read previous wins
+**Quick — even while working:** sing · dance · 3 breaths · meditate ·
+Sunny snuggles · text a friend · list 3 gratitudes · text my coach ·
+sour candy · suck on a lollipop · drink sparkling water · drink through a
+straw · chew gum · prayer · write morning pages · look at photos from
+this day last year · review evidence · compare today to six months ago ·
+read wins
 
-**If you have more time:** play bass · cold shower · walk Sunny · hot
-shower · go outside · lie down · take a nap · fast walk · biking · stomp ·
-hit pillow or punching bag · 15-minute sober writing sprint · call my
-sponsor
+**If you have more time:** play bass · lift weights · cold shower · hot
+shower · walk Sunny · go outside · lie down · take a nap · fast walk ·
+bike ride · stomp · hit pillow or punching bag · 15-minute sober writing
+sprint · call my sponsor · spicy food
 
 Also on this screen: a **Start a 10-minute timer** button, the line "You
 can do anything for 10 minutes," and a note that everything is saved — if
@@ -127,11 +122,11 @@ shame spiral. Not tonight." ...).
 kept), plus a box to write your own:
 
 I paused. · I waited 10 minutes. · Craving survived. · I told the truth. ·
-I texted Anthony. · Asked for help. · I noticed the pattern. · I didn't
-make a decision while activated. · Delayed a big decision. · I let myself
-feel without acting. · I came back. · Boundary held. · Asked for what I
-needed. · Parenting win. · Recovery win. · Honest conversation. · Attended
-a meeting. · Made amends. · Chose repair over avoidance. · Finished a hard
+I texted Anthony. · Asked for help. · I noticed the pattern. · Delayed a
+big decision. · I let myself feel without acting. · I came back. ·
+Boundary held. · Asked for what I needed. · Parenting win. · Recovery
+win. · I apologized. · Honest conversation. · Attended a meeting. · Made
+amends. · Chose repair over avoidance. · Finished a hard
 task. · Took medication. · Exercised. · Ate a meal. · Chose rest. · Stayed
 present with discomfort. · Followed through on a commitment. · Did
 something sober that I thought I needed a substance to do. · Let someone
@@ -192,8 +187,9 @@ Tapping text/call on a contact automatically logs "Reached out" as evidence.
 ## 9. Log a Win
 
 A box to write any win, with the same one-tap example list as the
-reflection screen, and a category picker. Any size counts. What you type
-is saved as you go — a half-written win survives closing the app.
+reflection screen, a category picker, and a date picker so a win from an
+earlier day can be logged on the day it happened. Any size counts. What
+you type is saved as you go — a half-written win survives closing the app.
 
 ---
 

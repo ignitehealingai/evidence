@@ -79,9 +79,14 @@ export function getEntries(): EvidenceEntry[] {
 }
 
 export function addEntry(
-  partial: Omit<EvidenceEntry, "id" | "createdAt">
+  partial: Omit<EvidenceEntry, "id" | "createdAt"> & { createdAt?: string }
 ): EvidenceEntry {
-  const entry: EvidenceEntry = { id: newId(), createdAt: nowIso(), ...partial };
+  const { createdAt, ...rest } = partial;
+  const entry: EvidenceEntry = {
+    id: newId(),
+    createdAt: createdAt ?? nowIso(),
+    ...rest,
+  };
   entriesCache = [entry, ...getEntries()];
   writeList(KEYS.entries, entriesCache);
   emitChange();
