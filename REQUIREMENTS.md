@@ -16,7 +16,7 @@ Below it, five smaller buttons:
 - SHOW ME EVIDENCE I'M CHANGING
 - LOG A WIN
 - GRATITUDE
-- SUPPORT
+- IMMEDIATE CONNECTION
 - BIG DECISIONS
 
 If a check-in was started but not finished, a banner appears at the top:
@@ -176,7 +176,7 @@ At the bottom: a link to Reports, and "Erase all data on this device"
 
 ---
 
-## 8. Support screen
+## 8. Immediate Connection screen
 
 - **Anthony** — Text / Call (781-706-4853)
 - **Cheryl** — Text / Call (336-404-5959)

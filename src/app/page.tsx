@@ -47,7 +47,7 @@ export default function Home() {
         href="/support"
         className="block rounded-2xl border border-line bg-surface px-5 py-4 text-center font-semibold tracking-wide text-mist transition active:bg-line"
       >
-        SUPPORT
+        IMMEDIATE CONNECTION
       </Link>
       <Link
         href="/decision"

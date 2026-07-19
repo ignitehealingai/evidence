@@ -36,7 +36,7 @@ export default function Support() {
   }
 
   return (
-    <Screen title="Support" back="/">
+    <Screen title="Immediate Connection" back="/">
       <p className="mb-5 text-sm text-fog">
         Reaching out is evidence. It counts even before they answer.
       </p>
